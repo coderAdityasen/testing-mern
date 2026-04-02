@@ -2,34 +2,38 @@ name: Full Stack CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
-
-  backend:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+       - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - run: |
+
+      # Backend
+      - name: Install Backend
+        run: |
           cd backend
           npm install
+
+      - name: Test Backend
+        run: |
+          cd backend
           npm test
 
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - run: |
+      # Frontend
+      - name: Install Frontend
+        run: |
           cd frontend
           npm install
+
+      - name: Build Frontend
+        run: |
+          cd frontend
           npm run build

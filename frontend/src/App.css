@@ -1,0 +1,4 @@
+/* App-level resets — Tailwind handles the rest */
+* {
+  box-sizing: border-box;
+}

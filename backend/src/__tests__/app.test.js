@@ -26,4 +26,8 @@ describe('Backend Setup', () => {
   test('basic arithmetic should work', () => {
     expect(2 + 2).toBe(4);
   });
+
+  test('this test should fail', () => {
+    expect(5 + 5).toBe(11); // This is intentionally wrong - should be 10
+  });
 });

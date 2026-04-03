@@ -68,6 +68,9 @@ jobs:
             npm install
             npm run build
 
+            echo "copy the build files to nginx directory..."
+            sudo cp -r ~/testing-mern/frontend/build/* /var/www/html/
+
             echo "restarting nginx..."
             sudo systemctl restart nginx
 

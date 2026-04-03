@@ -87,12 +87,12 @@ jobs:
             docker network create stack 2>/dev/null || true
 
             echo "Starting backend..."
-            docker run -d --name backend --network stack \
-              -p 8000:8000 \
+            docker run -d --name backend --network stack --restart always \
+              -p 3000:3000 \
               ${{ secrets.DOCKERHUB_USERNAME }}/stack-backend:latest
 
             echo "Starting frontend..."
-            docker run -d --name frontend --network stack \
+            docker run -d --name frontend --network stack --restart always \
               -p 80:80 \
               ${{ secrets.DOCKERHUB_USERNAME }}/stack-frontend:latest
 

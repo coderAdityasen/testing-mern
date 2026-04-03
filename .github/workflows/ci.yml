@@ -5,7 +5,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,8 +39,32 @@ jobs:
           cd frontend
           npm run build
 
+  docker-build-push:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push Backend Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/stack-backend:latest ./backend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/stack-backend:latest
+
+      - name: Build & Push Frontend Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/stack-frontend:latest ./frontend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/stack-frontend:latest
+
   deploy:
-    needs: build
+    needs: docker-build-push
     runs-on: ubuntu-latest
 
     steps:
@@ -51,27 +75,28 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/testing-mern
+            echo "Pulling latest images..."
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stack-backend:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stack-frontend:latest
 
-            echo "Pulling latest code..."
-            git pull origin main
+            echo "Stopping old containers..."
+            docker stop backend frontend 2>/dev/null || true
+            docker rm backend frontend 2>/dev/null || true
 
-            echo "Updating backend..."
-            cd backend
-            npm install
+            echo "Creating network..."
+            docker network create stack 2>/dev/null || true
 
-            echo "Restarting backend..."
-            pm2 restart backend || pm2 start src/index.js --name backend
+            echo "Starting backend..."
+            docker run -d --name backend --network stack \
+              -p 8000:8000 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/stack-backend:latest
 
-            echo "Updating frontend..."
-            cd ../frontend
-            npm install
-            npm run build
+            echo "Starting frontend..."
+            docker run -d --name frontend --network stack \
+              -p 80:80 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/stack-frontend:latest
 
-            echo "copy the build files to nginx directory..."
-            sudo cp -r ~/testing-mern/frontend/dist/* /var/www/html/
-
-            echo "restarting nginx..."
-            sudo systemctl restart nginx
+            echo "Cleaning up old images..."
+            docker image prune -f
 
             echo "Deployment completed!"

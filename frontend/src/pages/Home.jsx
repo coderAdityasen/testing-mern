@@ -37,7 +37,7 @@ const Home = () => {
         {/* Badge */}
         <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
           <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          <span className="text-sm text-white/80">Now Live on Production</span>
+          <span className="text-sm text-white/80">Ibr Infotech </span>
         </div>
 
         {/* Main Headline */}
@@ -75,7 +75,7 @@ const Home = () => {
 
         {/* Social Proof */}
         <div className="text-center mb-16">
-          <p className="text-white/60 text-sm mb-4">Trusted by leading companies</p>
+          <p className="text-white/60 text-sm mb-4">Trusted by leading companies like IBR Infotech</p>
           <div className="flex justify-center gap-8 items-center">
             {["Acme", "TechCorp", "StartUp Co", "Enterprise Inc"].map((company, i) => (
               <div key={i} className="text-white/40 font-semibold text-sm">

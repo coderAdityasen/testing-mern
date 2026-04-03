@@ -68,4 +68,7 @@ jobs:
             npm install
             npm run build
 
+            echo "restarting nginx..."
+            sudo systemctl restart nginx
+
             echo "Deployment completed!"
